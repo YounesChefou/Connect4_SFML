@@ -6,7 +6,13 @@ using namespace std;
 
 int main() 
 {
-/*    Joueur J1 = Joueur("Robert", 1);
+/*   
+    Compiler :
+        - g++ -c Jeu.cpp
+        - g++ -c main.cpp
+        - g++ -o main main.o Jeu.o
+        
+    Joueur J1 = Joueur("Robert", 1);
     Joueur J2 = Joueur("Kingo", -1);
 
     cout << J1.getNom() << "/" << J1.getPts() << endl;
