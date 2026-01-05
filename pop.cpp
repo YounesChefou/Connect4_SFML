@@ -1,40 +1,251 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
+#include <vector>
+#include "Jeu.hpp"
+
+using namespace std;
+
+
 /*
 Compiler avec
 g++ -c pop.cpp => pour compiler sans linker => resulte en fichier .o
 g++ -o yousuke pop.o -lsfml-graphics -lsfml-window -lsfml-system
 */
 
-const int WIDTH = 1280;
-const int HEIGHT = 720;
+struct Selection {
+    sf::CircleShape cursor;
+    int columnSelected;
+    int lastRowPlayed;
+    int lastColumnPlayed;
+};
+
+class GraphicalJeu
+{
+    public:
+        GraphicalJeu();
+        void addTokenToColumn(sf::RenderWindow* window);
+        void drawGridOnWindow(sf::RenderWindow* window);
+        void drawCursorOnWindow(sf::RenderWindow* window);
+        void drawTokensOnGrid(sf::RenderWindow* window);
+        void moveCursorToNextColumn(bool right);
+        bool checkVictory() {return puissance4.checkVictory();};
+        bool checkVictoryFromPosition(int row, int column) {return puissance4.checkVictoryFromPosition(row, column);};
+        int getCurrentPlayer() {return puissance4.getCurrentPlayer();};
+        void emptyGrid() {puissance4.emptyGrid();}
+        void changeCurrentPlayer() {puissance4.changeCurrentPlayer();};
+        void testJeuFini() {
+            puissance4.addToken(5,0,1);
+            puissance4.addToken(5,1,1);
+            puissance4.addToken(5,2,1);
+        };
+    private:
+        Jeu puissance4;
+        sf::RectangleShape columnShapes[COLUMNS];
+        Selection playerSelection;
+        vector<sf::CircleShape> displayedTokens;
+};
+
+ GraphicalJeu::GraphicalJeu() {
+
+    // Grid
+    for(int i = 0; i < COLUMNS; i++) {
+        this->columnShapes[i].setSize(sf::Vector2f(BOARD_COLUMN_WIDTH, BOARD_HEIGHT));
+        this->columnShapes[i].setFillColor(sf::Color::Blue);
+        this->columnShapes[i].setPosition(WIDTH/5 + (BOARD_COLUMN_WIDTH + BOARD_COLUMN_MARGIN) * i, HEIGHT/8);
+    }
+
+    // Player Cursor to select in which column the token must be
+    playerSelection.cursor.setRadius(20);
+    playerSelection.cursor.setPointCount(3);
+
+    sf::Texture cursorTexture;
+    cursorTexture.loadFromFile("malachite.png");
+    playerSelection.cursor.setTexture(&cursorTexture);
+
+    sf::Vector2f firstColumnPosition = columnShapes[0].getPosition();
+    playerSelection.cursor.setPosition(firstColumnPosition.x, firstColumnPosition.y + BOARD_HEIGHT + 10.f); // Set position under first column
+    playerSelection.columnSelected = 0; // Select first column
+}
+
+void GraphicalJeu::addTokenToColumn(sf::RenderWindow* window)
+{
+    int columnNumber = playerSelection.columnSelected;
+
+    if(puissance4.filledColumn(columnNumber)){
+        cout << "Colonne déjà remplie" << endl;
+        return; // Column already full
+    }
+
+    
+    // Adding token in the 2D-array representing the grid
+    puissance4.addToken(columnNumber);
+
+    puissance4.printJeu();
+
+    // Display token in window
+    sf::Vector2f columnPosition = columnShapes[columnNumber].getPosition();
+    int numberOfTokensInColumn = puissance4.getNumberOfTokensInColumn(columnNumber);
+    sf::CircleShape token(BOARD_COLUMN_WIDTH/2); // Un Token de rayon BOARD_COLUMN_WIDTH/2)
+
+    if(puissance4.getCurrentPlayer() == PLAYER_1) {
+        token.setFillColor(sf::Color::Red);
+    }
+    else { // JOUEUR 2
+       token.setFillColor(sf::Color::Yellow);
+    }
+
+    // Token position is based on the number of tokens already in column
+    // if 0, put a token at the bottom = columnPosition.y + BOARD_HEIGHT
+    // if 1, put a token right above = columnPosition.y + BOARD_HEIGHT - BOARD_COLUMN_WIDTH
+    // if 5, put it at the top
+    token.setPosition(columnPosition.x, columnPosition.y + BOARD_HEIGHT - BOARD_COLUMN_WIDTH * numberOfTokensInColumn);
+
+    displayedTokens.push_back(token);
+}
+
+void GraphicalJeu::drawGridOnWindow(sf::RenderWindow* window) {
+    for(int i = 0; i < COLUMNS; i++) {
+        window->draw(columnShapes[i]);
+    }
+}
+
+void GraphicalJeu::drawCursorOnWindow(sf::RenderWindow* window) {
+    window->draw(playerSelection.cursor);
+}
+
+void GraphicalJeu::drawTokensOnGrid(sf::RenderWindow* window) {
+    for(sf::CircleShape token : displayedTokens) {
+        window->draw(token);
+    }
+}
+
+void GraphicalJeu::moveCursorToNextColumn(bool right) {
+    if(right) { // move cursor to right
+        if(playerSelection.columnSelected == COLUMNS - 1) {
+            return; // Cursor at the far right of the grid
+        }
+        playerSelection.cursor.move((BOARD_COLUMN_WIDTH + BOARD_COLUMN_MARGIN), 0);
+        playerSelection.columnSelected += 1; 
+    }
+    else { // move cursor to left
+        if(playerSelection.columnSelected == 0) {
+            return; // Cursor at the far left of the grid
+        }
+        playerSelection.cursor.move(-(BOARD_COLUMN_WIDTH + BOARD_COLUMN_MARGIN), 0);
+        playerSelection.columnSelected -= 1;
+    }
+}
+
+
 
 int main()
 {
     // Window
     sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT), "Connect4", sf::Style::Close | sf::Style::Resize);
 
-    //Background
-    sf::Texture background;
-    background.create(20.f, 20.f);
+    // Background
+    sf::Texture textureBackground;
+    if(!textureBackground.loadFromFile("background.png")){
+        cout << "Background not properly loaded" << endl;
+        return -1;
+    }
 
-    // Connect4 board
-    sf::Image board;
-    board.loadFromFile("Connect4_Empty.png");
+    sf::Sprite spriteBackground;
+    spriteBackground.setTexture(textureBackground);
+    spriteBackground.setPosition(0, 0);
 
-    // Player character
-    sf::RectangleShape player(sf::Vector2f(100.f, 100.f));
-    //shape.setFillColor(sf::Color::Green);
-    player.setOrigin(50.0f, 50.f);
+    // Game
+    GraphicalJeu videoGame;
+    videoGame.emptyGrid();
 
-    sf::CircleShape player2(50.f);
-    player2.setFillColor(sf::Color::Blue);
-    
-    sf::Texture playerTexture;
-    playerTexture.loadFromFile("malachite.png");
-    
+    videoGame.testJeuFini();
+    // Add Tokens in columns
+
+    // Cursor speed
+    float cursor1Speed = 0;
+
+    sf::Clock clock;
+
+    // Track if the game is running or not
+    bool paused = true;
+
+    sf::Text victoryText;
+    victoryText.setString("PLAYER X WON !\nPress Enter to restart the game.");
+    victoryText.setCharacterSize(70);
+    victoryText.setFillColor(sf::Color::Cyan);
+
+    sf::Font myFont;
+    myFont.loadFromFile("UbuntuMono-B.ttf");
+
+    victoryText.setFont(myFont);
+
+    sf::FloatRect textRect = victoryText.getLocalBounds();
+    victoryText.setOrigin(textRect.left + textRect.width / 2.0f,
+    textRect.top + textRect.height / 2.0f);
+    victoryText.setPosition(WIDTH / 2.0f, HEIGHT / 2.0f);
+    //victoryText.setPosition(0, 0);
     while(window.isOpen())
     {
+        /*
+        *************************
+        Players input
+        *************************
+        */
+
+        // Keyboard controls
+
+        // Close the window
+        if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Escape)){
+            window.close();
+        }
+
+        // Start the game
+        if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::P)){
+            paused = !paused;
+        }
+
+        // if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Z)){
+        //     player.move(0, -0.1f);
+        // }
+        // if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S)){
+        //     player.move(0, 0.1f);
+        // }
+
+        // Each column are spaced BOARD_COLUMN_WIDTH
+        // if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Q) || sf::Keyboard::isKeyPressed(sf::Keyboard::Scan::Left)){
+        // //     videoGame..move(-BOARD_COLUMN_WIDTH, 0);
+        //        videoGame.moveCursorToNextColumn(false);
+        // }
+        // if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D) || sf::Keyboard::isKeyPressed(sf::Keyboard::Scan::Right)){
+        // //     playerCursor.move(BOARD_COLUMN_WIDTH, 0);
+        //         videoGame.moveCursorToNextColumn(true);
+        // }
+
+        /*
+        *************************
+        Update the scene
+        *************************
+        */
+    //    if(paused == false) {
+    //         // Measure time
+    //         sf::Time dt = clock.restart();
+
+    //         // Moving cursor
+            
+    //         // how fast
+    //         //srand((int)time(0));
+    //         cursor1Speed = 100;
+
+    //         // how high 
+    //         //srand((int)time(0) * 10);
+    //         float height = playerCursor.getPosition().y + (cursor1Speed * dt.asSeconds());
+    //         playerCursor.setPosition(playerCursor.getPosition().x, height);
+
+    //         if(playerCursor.getPosition().y > HEIGHT) {
+    //             playerCursor.setPosition(playerCursor.getPosition().x, -20);
+    //         }
+    //     }
+
         sf::Event event;
         while (window.pollEvent(event))
         {
@@ -43,40 +254,80 @@ int main()
                 case sf::Event::Closed:
                     window.close();
 
-                // case sf::Event::MouseButtonPressed:
-                //     window.clear();
-                //     window.draw(shape2);
-                //     window.display();
+                case sf::Event::KeyPressed:
+                    if(event.key.code == sf::Keyboard::Key::Left) {
+                        videoGame.moveCursorToNextColumn(false);
+                    }
+                    else if(event.key.code == sf::Keyboard::Key::Right) {
+                        videoGame.moveCursorToNextColumn(true);
+                    }
+                    else if(event.key.code == sf::Keyboard::Return) {
+                        videoGame.addTokenToColumn(&window);
 
-                // case sf::Event::TextEntered:
-                //     std::cout << event.text.unicode << std::endl;
+                        if(videoGame.checkVictory()) {
+                            if(videoGame.getCurrentPlayer() == PLAYER_1) {
+                                victoryText.setString("PLAYER 1 WON !\nPress Enter to restart the game.");
+                            }
+                            else {
+                                victoryText.setString("PLAYER 2 WON !\nPress Enter to restart the game.");
+                            }
+                        }
+                        else {
+                            // Change current player
+                            videoGame.changeCurrentPlayer();
+                        }
+                        
+                    }
+
+        //         case sf::Event::MouseButtonPressed:
+        //             window.clear();
+        //             window.draw(shape2);
+        //             window.display();
+
+        //         case sf::Event::TextEntered:
+        //             std::cout << event.text.unicode << std::endl;
                     
             }
         }
 
-        // Keyboard controls
-        if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Z)){
-            player.move(0, -0.1f);
-        }
-        if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S)){
-            player.move(0, 0.1f);
-        }
-        if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Q)){
-            player.move(-0.1f, 0);
-        }
-        if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D)){
-            player.move(0.1f, 0);
-        }
+        /*
+        *************************
+        Draw the scene
+        *************************
+        */
         
-        if(sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
+        // Token position is based on the number of tokens already in column
+        // if 0, put a token at the bottom
+        // if 5, put it at the top
+        // if 6, don't do anything
+                
+        // if(sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
 
-            sf::Vector2i mousePos = sf::Mouse::getPosition(window);
-            player.setPosition((float) mousePos.x, (float) mousePos.y);
+        //     sf::Vector2i mousePos = sf::Mouse::getPosition(window);
+        //     player.setPosition((float) mousePos.x, (float) mousePos.y);
+        // }
+
+
+        // Clear everything from the last frame
+        window.clear();
+
+        // Draw the background
+        window.draw(spriteBackground);
+
+        // Draw the grid
+        videoGame.drawGridOnWindow(&window);
+
+        // Draw the cursor
+        videoGame.drawCursorOnWindow(&window);
+
+        // Draw tokens
+        videoGame.drawTokensOnGrid(&window);
+
+        // Draw victory text
+        if(videoGame.checkVictory()) {
+            window.draw(victoryText);
         }
 
-
-        window.clear();
-        window.draw(player);
         window.display();
     }
     return EXIT_SUCCESS;

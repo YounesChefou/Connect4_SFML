@@ -1,25 +1,25 @@
 #include <iostream>
+#include "Constants.hpp"
 
 class Jeu 
 {
 	public:
-    	static const int LIGNES = 6;
-    	static const int COLONNES = 7; 
-
+		Jeu() {emptyGrid();};
     	void printJeu();
-    	void ajouterJeton (int ligne, int colonne, int jeton);
-    	bool colonneRemplie(int colonne) {return jetonsParColonnes[colonne] == LIGNES;};
-    	void ajouterJeton (int colonne);
-    	bool verifierVictoire();
-    	bool verifierVictoireDepuisPos();
-    	void viderGrille();
-    	int getJoueurActuel() {return joueurActuel;}
-    	void changerJoueurActuel() {joueurActuel *= -1;};
-    	void voirJetonsParColonne();
+		void addToken (int column);
+    	void addToken (int row, int column, int token);
+    	bool filledColumn(int column) {return tokensInColumns[column] == ROWS;};
+		int getNumberOfTokensInColumn(int column) {return tokensInColumns[column];};
+    	bool checkVictory();
+    	bool checkVictoryFromPosition(int row, int column);
+    	void emptyGrid();
+    	int getCurrentPlayer() {return currentPlayer;}
+    	void changeCurrentPlayer() {currentPlayer *= -1;};
+    	void printNumberOfTokensInColumn();
 
     private:
-	    int grille[LIGNES][COLONNES] = {0};
-	    int jetonsParColonnes[COLONNES] = {0}; // indique les jetons déjà insérés dans la colonne
-	    int joueurActuel = 1;
+	    int grid[ROWS][COLUMNS];
+	    int tokensInColumns[COLUMNS] = {0}; // indique les jetons déjà insérés dans la colonne
+	    int currentPlayer = PLAYER_1;
 
 };

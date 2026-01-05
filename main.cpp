@@ -1,6 +1,7 @@
 #include "Jeu.hpp"
 #include <iostream>
 #include <string>
+#include "Constants.hpp"
 
 using namespace std;
 
@@ -23,47 +24,49 @@ int main()
 
     Jeu puissance4;
 
-    puissance4.ajouterJeton(5,0,1);
-    puissance4.ajouterJeton(5,1,1);
-    puissance4.ajouterJeton(5,2,1);
-    puissance4.ajouterJeton(5,3,1);
+    puissance4.addToken(5,0,1);
+    puissance4.addToken(5,1,1);
+    puissance4.addToken(5,2,1);
+    puissance4.addToken(5,3,1);
 
     puissance4.printJeu();
-    if (puissance4.verifierVictoire()) {
+    if (puissance4.checkVictory()) {
         cout << "Excuse me, miss." << endl;
     }
 
-    puissance4.viderGrille();
+    puissance4.emptyGrid();
     puissance4.printJeu();
 
-    while (!puissance4.verifierVictoire()) {
+    // int row = 0;
+    // int column = 0;
+    while (!puissance4.checkVictory()) {
         puissance4.printJeu();
-        puissance4.voirJetonsParColonne();
+        puissance4.printNumberOfTokensInColumn();
 
-        if(puissance4.getJoueurActuel() == 1) {
+        if(puissance4.getCurrentPlayer() == 1) {
             cout << "Au tour du joueur 1" << endl;
         }
-        else if (puissance4.getJoueurActuel() == -1) {
+        else if (puissance4.getCurrentPlayer() == -1) {
             cout << "Au tour du joueur 2" << endl;
         }
 
-        int colonne = puissance4.COLONNES;
+        int column = COLUMNS;
         bool colonneRemplie = false;
         do {
             cout << "Veuillez entrer la colonne dans laquelle mettre le jeton (entre 0 et 6) => " << endl;
-            cin >> colonne;
+            cin >> column;
 
-            colonneRemplie = puissance4.colonneRemplie(colonne);
+            colonneRemplie = puissance4.filledColumn(column);
 
             if(colonneRemplie) {
                 cout << "Colonne déjà remplie" << endl;
             }
         }
-        while (colonne < 0 || colonne > 6 || colonneRemplie);
+        while (column < 0 || column >= COLUMNS || colonneRemplie);
 
-        puissance4.ajouterJeton(colonne);
+        puissance4.addToken(column);
 
-        puissance4.changerJoueurActuel();
+        puissance4.changeCurrentPlayer();
     }
 
     cout << "Fin de partie." << endl;

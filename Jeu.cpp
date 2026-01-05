@@ -1,28 +1,37 @@
 #include "Jeu.hpp"
 using namespace std;
 
+/*
+* Print the current grid in terminal.
+*/
 void Jeu::printJeu() {
 
-        for(int i = 0; i < LIGNES; i++) {
+        for(int i = 0; i < ROWS; i++) {
             cout << "| ";
-            for(int j = 0; j < COLONNES; j++) {
-                if (grille[i][j] >= 0) {
+            for(int j = 0; j < COLUMNS; j++) {
+                if (grid[i][j] >= 0) {
                     cout << " ";
                 }
-                cout << grille[i][j] << " | ";
+                cout << grid[i][j] << " | ";
             }
             cout << endl;
         }
-        for(int j = 0; j < COLONNES; j++) {
+        for(int j = 0; j < COLUMNS; j++) {
             cout << "  (" << j << ")";
         }
         cout << endl;
     }
 
-void Jeu::ajouterJeton (int ligne, int colonne, int jeton) {
-        if (this->jetonsParColonnes[colonne] < LIGNES) {
-            this->grille[ligne][colonne] = jeton;
-            this->jetonsParColonnes[colonne] += 1;
+/*
+* Adds token to the current game's grid.
+* @param row, the number of the row the token will be on after being added, is between 0 and (ROWS - 1)
+* @param column, the number of the selected column in the grid, is between 0 and (COLUMNS - 1)
+* @param token, 1 if the current player is PLAYER_1, -1 if PLAYER_2.
+*/
+void Jeu::addToken (int row, int column, int token) {
+        if (this->tokensInColumns[column] < ROWS) {
+            this->grid[row][column] = token;
+            this->tokensInColumns[column] += 1;
         }
         else {
             cout << " La colonne est déjà remplie de jetons ! " << endl;
@@ -30,11 +39,12 @@ void Jeu::ajouterJeton (int ligne, int colonne, int jeton) {
             
     }
 
- void Jeu::ajouterJeton (int colonne) {
+
+void Jeu::addToken (int column) {
 /*        cout << "Coordonnees : ";
        	 cout << "Ligne = " << LIGNES - jetonsParColonnes[colonne] << endl;
         cout << "Colonne = " << colonne << endl;*/
-    ajouterJeton (LIGNES - jetonsParColonnes[colonne] - 1, colonne, joueurActuel);
+    addToken (ROWS - tokensInColumns[column] - 1, column, currentPlayer);
  }
 
      // Conditions de victoire
@@ -60,49 +70,123 @@ void Jeu::ajouterJeton (int ligne, int colonne, int jeton) {
 
 
         v1 : on verifie toutes les cases
+    * Goes through the entire grid to find if there's a winning combination of the same four tokens in a row.
     */
-bool Jeu::verifierVictoire() {
-    for(int i = 0; i < LIGNES; i++) {
-        for(int j = 0; j < COLONNES; j++) {
+bool Jeu::checkVictory() {
+    for(int i = 0; i < ROWS; i++) {
+        for(int j = 0; j < COLUMNS; j++) {
             // Vertical
-            if ((i+3) < LIGNES && abs(grille[i][j] + grille[i+1][j] + grille[i+2][j] + grille[i+3][j]) == 4) {
+            if ((i+3) < ROWS && abs(grid[i][j] + grid[i+1][j] + grid[i+2][j] + grid[i+3][j]) == 4) {
                 return true;
             }
             // Horizontal
-            if ((j+3) < COLONNES && abs(grille[i][j] + grille[i][j+1] + grille[i][j+2] + grille[i][j+3]) == 4) {
+            if ((j+3) < COLUMNS && abs(grid[i][j] + grid[i][j+1] + grid[i][j+2] + grid[i][j+3]) == 4) {
                 return true;
             }
 
-            // Diagonale
-            if ((i+3) < LIGNES && (j+3) < COLONNES && abs(grille[i][j] + grille[i+1][j+1] + grille[i+2][j+2] + grille[i+3][i+3]) == 4) {
+            // Diagonal
+            if ((i+3) < ROWS && (j+3) < COLUMNS && abs(grid[i][j] + grid[i+1][j+1] + grid[i+2][j+2] + grid[i+3][i+3]) == 4) {
                 return true;
             }
 
-            if ((i+3) > LIGNES && (j-3) >= 0 && abs(grille[i][j] + grille[i+1][j-1] + grille[i+2][j-2] + grille[i+3][i-3]) == 4) {
+            if ((i+3) > ROWS && (j-3) >= 0 && abs(grid[i][j] + grid[i+1][j-1] + grid[i+2][j-2] + grid[i+3][i-3]) == 4) {
                 return true;
             }
         }
     }
     return false;
+}
+
+/*
+* From the last played token position, checks if there's a winning combination of the same four tokens in a row.
+*/
+bool Jeu::checkVictoryFromPosition(int row, int column) {
+    
+    // Vertical
+    if((row + 3) < ROWS) {
+        return abs(grid[row][column] + grid[row+1][column] + grid[row+2][column] + grid[row+3][column]) == 4;
+    }   
+
+    // Horizontal
+    if((column - 3) >= 0 && abs(grid[row][column - 3] + grid[row][column - 2] + grid[row][column - 1] + grid[row][column]) == 4) {
+        return true;
     }
 
-// Verifier s'il y a une com
-bool Jeu::verifierVictoireDepuisPos() {
+    if((column - 2) >= 0 && (column + 1) < COLUMNS && abs(grid[row][column - 2] + grid[row][column - 1] + grid[row][column] + grid[row][column + 1]) == 4) {
+        return true;
+    }
+
+    if((column - 1) >= 0 && (column + 2) < COLUMNS && abs(grid[row][column - 1] + grid[row][column] + grid[row][column + 1] + grid[row][column + 2]) == 4) {
+        return true;
+    }
+
+    if((column + 3) < COLUMNS && abs(grid[row][column] + grid[row][column + 1] + grid[row][column + 2] + grid[row][column + 3]) == 4) {
+        return true;
+    }
+
+    // Diagonal
+
+    // From top to bottom diagonal
+    if((row - 3) >= 0 && (column - 3) >= 0 
+    && abs(grid[row - 3][column - 3] + grid[row - 2][column - 2] + grid[row - 1][column - 1] + grid[row][column]) == 4) {
+        return true;
+    }
+
+    if((row - 2) >= 0 && (column - 2) >= 0 
+    && (row + 1) < ROWS && (column + 1) < COLUMNS 
+    && abs(grid[row - 2][column - 2] + grid[row - 1][column - 1] + grid[row][column] + grid[row + 1][column + 1]) == 4) {
+        return true;
+    }
+
+    if((row - 1) >= 0 && (column - 1) >= 0 
+    && (row + 2) < ROWS && (column + 2) < COLUMNS 
+    && abs(grid[row - 1][column - 1] + grid[row][column] + grid[row + 1][column + 1] + grid[row + 2][column + 2]) == 4) {
+        return true;
+    }
+
+    if((row + 3) < ROWS && (column + 3) < COLUMNS
+    && abs(grid[row][column] + grid[row + 1][column + 1] + grid[row + 2][column + 2] + grid[row + 3][column + 3]) == 4) {
+        return true;
+    }
+
+    // From bottom to top diagonal
+    if((row + 3) < ROWS && (column - 3) >= 0 
+    && abs(grid[row + 3][column - 3] + grid[row + 2][column - 2] + grid[row + 1][column - 1] + grid[row][column]) == 4) {
+        return true;
+    }
+
+    if((row - 1) >= 0 && (column - 2) >= 0 
+    && (row + 2) < ROWS && (column + 1) < COLUMNS 
+    && abs(grid[row + 2][column - 2] + grid[row + 1][column - 1] + grid[row][column] + grid[row - 1][column + 1]) == 4) {
+        return true;
+    }
+
+    if((row - 2) >= 0 && (column - 1) >= 0 
+    && (row + 1) < ROWS && (column + 2) < COLUMNS 
+    && abs(grid[row + 1][column - 1] + grid[row][column] + grid[row - 1][column + 1] + grid[row - 2][column + 2]) == 4) {
+        return true;
+    }
+
+    if((row - 3) >= 0 && (column + 3) < COLUMNS
+    && abs(grid[row][column] + grid[row - 1][column + 1] + grid[row - 2][column + 2] + grid[row - 3][column + 3]) == 4) {
+        return true;
+    }
+
     return false;
-    }
+}
 
-void Jeu::viderGrille() {
-        for(int i = 0; i < LIGNES; i++) {
-            this->jetonsParColonnes[i] = 0;
-            for(int j = 0; j < COLONNES; j++) {
-                this->grille[i][j] = 0;
+void Jeu::emptyGrid() {
+        for(int i = 0; i < ROWS; i++) {
+            this->tokensInColumns[i] = 0;
+            for(int j = 0; j < COLUMNS; j++) {
+                this->grid[i][j] = 0;
             }
         }
-    }
+}
 
-void Jeu::voirJetonsParColonne() {
-    for(int i = 0; i < COLONNES; i++) {
-        cout << "(" << jetonsParColonnes[i] << ") ";
+void Jeu::printNumberOfTokensInColumn() {
+    for(int i = 0; i < COLUMNS; i++) {
+        cout << "(" << tokensInColumns[i] << ") ";
     }
     cout << endl;
 }
