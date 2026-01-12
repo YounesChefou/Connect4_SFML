@@ -3,14 +3,15 @@
 #include <vector>
 #include "Jeu.hpp"
 
-using namespace std;
-
-
 /*
 Compiler avec
 g++ -c pop.cpp => pour compiler sans linker => resulte en fichier .o
 g++ -o yousuke pop.o -lsfml-graphics -lsfml-window -lsfml-system
 */
+
+enum class GameState {
+    START, RUNNING, VICTORY
+};
 
 struct Selection {
     sf::CircleShape cursor;
@@ -31,21 +32,27 @@ class GraphicalJeu
         bool checkVictory() {return puissance4.checkVictory();};
         bool checkVictoryFromPosition(int row, int column) {return puissance4.checkVictoryFromPosition(row, column);};
         int getCurrentPlayer() {return puissance4.getCurrentPlayer();};
-        void emptyGrid() {puissance4.emptyGrid();}
         void changeCurrentPlayer() {puissance4.changeCurrentPlayer();};
         void testJeuFini() {
             puissance4.addToken(5,0,1);
             puissance4.addToken(5,1,1);
             puissance4.addToken(5,2,1);
         };
+        GameState getGameState() { return state;};
+        void setGameState(GameState newState) {state = newState;};
+        void clearGrid();
     private:
+        GameState state; 
         Jeu puissance4;
         sf::RectangleShape columnShapes[COLUMNS];
         Selection playerSelection;
-        vector<sf::CircleShape> displayedTokens;
+        std::vector<sf::CircleShape> displayedTokens;
 };
 
  GraphicalJeu::GraphicalJeu() {
+
+    // Default State
+    state = GameState::RUNNING;
 
     // Grid
     for(int i = 0; i < COLUMNS; i++) {
@@ -72,7 +79,7 @@ void GraphicalJeu::addTokenToColumn(sf::RenderWindow* window)
     int columnNumber = playerSelection.columnSelected;
 
     if(puissance4.filledColumn(columnNumber)){
-        cout << "Colonne déjà remplie" << endl;
+        std::cout << "Colonne déjà remplie" << std::endl;
         return; // Column already full
     }
 
@@ -136,7 +143,15 @@ void GraphicalJeu::moveCursorToNextColumn(bool right) {
     }
 }
 
+void GraphicalJeu::clearGrid() {
 
+    // Empty the grid
+    puissance4.emptyGrid();
+    
+    // Clear the vectors of all tokens currently displayed on screen
+    displayedTokens.clear();
+
+}
 
 int main()
 {
@@ -146,7 +161,7 @@ int main()
     // Background
     sf::Texture textureBackground;
     if(!textureBackground.loadFromFile("background.png")){
-        cout << "Background not properly loaded" << endl;
+        std::cout << "Background not properly loaded" << std::endl;
         return -1;
     }
 
@@ -156,9 +171,8 @@ int main()
 
     // Game
     GraphicalJeu videoGame;
-    videoGame.emptyGrid();
+    videoGame.clearGrid();
 
-    videoGame.testJeuFini();
     // Add Tokens in columns
 
     // Cursor speed
@@ -255,6 +269,7 @@ int main()
                     window.close();
 
                 case sf::Event::KeyPressed:
+                    // Commands
                     if(event.key.code == sf::Keyboard::Key::Left) {
                         videoGame.moveCursorToNextColumn(false);
                     }
@@ -262,20 +277,30 @@ int main()
                         videoGame.moveCursorToNextColumn(true);
                     }
                     else if(event.key.code == sf::Keyboard::Return) {
-                        videoGame.addTokenToColumn(&window);
 
-                        if(videoGame.checkVictory()) {
-                            if(videoGame.getCurrentPlayer() == PLAYER_1) {
-                                victoryText.setString("PLAYER 1 WON !\nPress Enter to restart the game.");
+                        if(videoGame.getGameState() == GameState::RUNNING) {
+                            videoGame.addTokenToColumn(&window);
+
+                            if(videoGame.checkVictory()) {
+                                if(videoGame.getCurrentPlayer() == PLAYER_1) {
+                                    victoryText.setString("PLAYER 1 WON !\nPress Enter to restart the game.");
+                                }
+                                else {
+                                    victoryText.setString("PLAYER 2 WON !\nPress Enter to restart the game.");
+                                }
+
+                                videoGame.setGameState(GameState::VICTORY);
                             }
                             else {
-                                victoryText.setString("PLAYER 2 WON !\nPress Enter to restart the game.");
+                                // Change current player
+                                videoGame.changeCurrentPlayer();
                             }
                         }
-                        else {
-                            // Change current player
-                            videoGame.changeCurrentPlayer();
+                        else if(videoGame.getGameState() == GameState::VICTORY) {
+                            videoGame.clearGrid();
+                            videoGame.setGameState(GameState::RUNNING);
                         }
+                        
                         
                     }
 
@@ -314,18 +339,29 @@ int main()
         // Draw the background
         window.draw(spriteBackground);
 
-        // Draw the grid
-        videoGame.drawGridOnWindow(&window);
+        switch (videoGame.getGameState())
+        {
+            case GameState::START:
+                break;
+            
+            case GameState::RUNNING:
+                // Draw the grid
+                videoGame.drawGridOnWindow(&window);
 
-        // Draw the cursor
-        videoGame.drawCursorOnWindow(&window);
+                // Draw the cursor
+                videoGame.drawCursorOnWindow(&window);
 
-        // Draw tokens
-        videoGame.drawTokensOnGrid(&window);
+                // Draw tokens
+                videoGame.drawTokensOnGrid(&window);
+                break;
 
-        // Draw victory text
-        if(videoGame.checkVictory()) {
-            window.draw(victoryText);
+            case GameState::VICTORY:
+                // Draw victory text
+                window.draw(victoryText);
+                break;
+                
+            default:
+                break;
         }
 
         window.display();
