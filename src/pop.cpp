@@ -66,7 +66,7 @@ class GraphicalJeu
     playerSelection.cursor.setPointCount(3);
 
     sf::Texture cursorTexture;
-    cursorTexture.loadFromFile("malachite.png");
+    cursorTexture.loadFromFile("assets/malachite.png");
     playerSelection.cursor.setTexture(&cursorTexture);
 
     sf::Vector2f firstColumnPosition = columnShapes[0].getPosition();
@@ -160,7 +160,7 @@ int main()
 
     // Background
     sf::Texture textureBackground;
-    if(!textureBackground.loadFromFile("background.png")){
+    if(!textureBackground.loadFromFile("assets/background.png")){
         std::cout << "Background not properly loaded" << std::endl;
         return -1;
     }
@@ -189,7 +189,7 @@ int main()
     victoryText.setFillColor(sf::Color::Cyan);
 
     sf::Font myFont;
-    myFont.loadFromFile("UbuntuMono-B.ttf");
+    myFont.loadFromFile("assets/UbuntuMono-B.ttf");
 
     victoryText.setFont(myFont);
 

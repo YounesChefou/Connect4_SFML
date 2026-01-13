@@ -1,7 +1,6 @@
 #include "Jeu.hpp"
 #include <iostream>
 #include <string>
-#include "Constants.hpp"
 
 using namespace std;
 
