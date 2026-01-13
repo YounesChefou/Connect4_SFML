@@ -1,14 +1,11 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
 #include <vector>
-#include "Jeu.hpp"
+#include "Connect4.hpp"
 
 /*
-Compiler avec
-g++ -c pop.cpp => pour compiler sans linker => resulte en fichier .o
-g++ -o yousuke pop.o -lsfml-graphics -lsfml-window -lsfml-system
+* SFML version of the game.
 */
-
 enum class GameState {
     START, RUNNING, VICTORY
 };
@@ -20,36 +17,31 @@ struct Selection {
     int lastColumnPlayed;
 };
 
-class GraphicalJeu
+class Connect4_SFMLInterface
 {
     public:
-        GraphicalJeu();
+        Connect4_SFMLInterface();
         void addTokenToColumn(sf::RenderWindow* window);
         void drawGridOnWindow(sf::RenderWindow* window);
         void drawCursorOnWindow(sf::RenderWindow* window);
         void drawTokensOnGrid(sf::RenderWindow* window);
         void moveCursorToNextColumn(bool right);
-        bool checkVictory() {return puissance4.checkVictory();};
-        bool checkVictoryFromPosition(int row, int column) {return puissance4.checkVictoryFromPosition(row, column);};
-        int getCurrentPlayer() {return puissance4.getCurrentPlayer();};
-        void changeCurrentPlayer() {puissance4.changeCurrentPlayer();};
-        void testJeuFini() {
-            puissance4.addToken(5,0,1);
-            puissance4.addToken(5,1,1);
-            puissance4.addToken(5,2,1);
-        };
+        bool checkVictory() {return game.checkVictory();};
+        bool checkVictoryFromPosition(int row, int column) {return game.checkVictoryFromPosition(row, column);};
+        int getCurrentPlayer() {return game.getCurrentPlayer();};
+        void changeCurrentPlayer() {game.changeCurrentPlayer();};
         GameState getGameState() { return state;};
         void setGameState(GameState newState) {state = newState;};
         void clearGrid();
     private:
         GameState state; 
-        Jeu puissance4;
+        Connect4 game;
         sf::RectangleShape columnShapes[COLUMNS];
         Selection playerSelection;
         std::vector<sf::CircleShape> displayedTokens;
 };
 
- GraphicalJeu::GraphicalJeu() {
+ Connect4_SFMLInterface::Connect4_SFMLInterface() {
 
     // Default State
     state = GameState::RUNNING;
@@ -74,27 +66,27 @@ class GraphicalJeu
     playerSelection.columnSelected = 0; // Select first column
 }
 
-void GraphicalJeu::addTokenToColumn(sf::RenderWindow* window)
+void Connect4_SFMLInterface::addTokenToColumn(sf::RenderWindow* window)
 {
     int columnNumber = playerSelection.columnSelected;
 
-    if(puissance4.filledColumn(columnNumber)){
-        std::cout << "Colonne déjà remplie" << std::endl;
+    if(game.filledColumn(columnNumber)){
+        // TODO: Add message on window
         return; // Column already full
     }
 
     
     // Adding token in the 2D-array representing the grid
-    puissance4.addToken(columnNumber);
+    game.addToken(columnNumber);
 
-    puissance4.printJeu();
+    game.printGame();
 
     // Display token in window
     sf::Vector2f columnPosition = columnShapes[columnNumber].getPosition();
-    int numberOfTokensInColumn = puissance4.getNumberOfTokensInColumn(columnNumber);
+    int numberOfTokensInColumn = game.getNumberOfTokensInColumn(columnNumber);
     sf::CircleShape token(BOARD_COLUMN_WIDTH/2); // Un Token de rayon BOARD_COLUMN_WIDTH/2)
 
-    if(puissance4.getCurrentPlayer() == PLAYER_1) {
+    if(game.getCurrentPlayer() == PLAYER_1) {
         token.setFillColor(sf::Color::Red);
     }
     else { // JOUEUR 2
@@ -110,23 +102,23 @@ void GraphicalJeu::addTokenToColumn(sf::RenderWindow* window)
     displayedTokens.push_back(token);
 }
 
-void GraphicalJeu::drawGridOnWindow(sf::RenderWindow* window) {
+void Connect4_SFMLInterface::drawGridOnWindow(sf::RenderWindow* window) {
     for(int i = 0; i < COLUMNS; i++) {
         window->draw(columnShapes[i]);
     }
 }
 
-void GraphicalJeu::drawCursorOnWindow(sf::RenderWindow* window) {
+void Connect4_SFMLInterface::drawCursorOnWindow(sf::RenderWindow* window) {
     window->draw(playerSelection.cursor);
 }
 
-void GraphicalJeu::drawTokensOnGrid(sf::RenderWindow* window) {
+void Connect4_SFMLInterface::drawTokensOnGrid(sf::RenderWindow* window) {
     for(sf::CircleShape token : displayedTokens) {
         window->draw(token);
     }
 }
 
-void GraphicalJeu::moveCursorToNextColumn(bool right) {
+void Connect4_SFMLInterface::moveCursorToNextColumn(bool right) {
     if(right) { // move cursor to right
         if(playerSelection.columnSelected == COLUMNS - 1) {
             return; // Cursor at the far right of the grid
@@ -143,10 +135,10 @@ void GraphicalJeu::moveCursorToNextColumn(bool right) {
     }
 }
 
-void GraphicalJeu::clearGrid() {
+void Connect4_SFMLInterface::clearGrid() {
 
     // Empty the grid
-    puissance4.emptyGrid();
+    game.emptyGrid();
     
     // Clear the vectors of all tokens currently displayed on screen
     displayedTokens.clear();
@@ -170,7 +162,7 @@ int main()
     spriteBackground.setPosition(0, 0);
 
     // Game
-    GraphicalJeu videoGame;
+    Connect4_SFMLInterface videoGame;
     videoGame.clearGrid();
 
     // Add Tokens in columns

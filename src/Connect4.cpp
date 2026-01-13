@@ -1,25 +1,24 @@
-#include "Jeu.hpp"
-using namespace std;
+#include "Connect4.hpp"
 
 /*
 * Print the current grid in terminal.
 */
-void Jeu::printJeu() {
+void Connect4::printGame() {
 
         for(int i = 0; i < ROWS; i++) {
-            cout << "| ";
+            std::cout << "| ";
             for(int j = 0; j < COLUMNS; j++) {
                 if (grid[i][j] >= 0) {
-                    cout << " ";
+                    std::cout << " ";
                 }
-                cout << grid[i][j] << " | ";
+                std::cout << grid[i][j] << " | ";
             }
-            cout << endl;
+            std::cout << std::endl;
         }
         for(int j = 0; j < COLUMNS; j++) {
-            cout << "  (" << j << ")";
+            std::cout << "  (" << j << ")";
         }
-        cout << endl;
+        std::cout << std::endl;
     }
 
 /*
@@ -28,22 +27,22 @@ void Jeu::printJeu() {
 * @param column, the number of the selected column in the grid, is between 0 and (COLUMNS - 1)
 * @param token, 1 if the current player is PLAYER_1, -1 if PLAYER_2.
 */
-void Jeu::addToken (int row, int column, int token) {
+void Connect4::addToken (int row, int column, int token) {
         if (this->tokensInColumns[column] < ROWS) {
             this->grid[row][column] = token;
             this->tokensInColumns[column] += 1;
         }
         else {
-            cout << " La colonne est déjà remplie de jetons ! " << endl;
+            std::cout << " Column is  " << std::endl;
         }
             
     }
 
 
-void Jeu::addToken (int column) {
-/*        cout << "Coordonnees : ";
-       	 cout << "Ligne = " << LIGNES - jetonsParColonnes[colonne] << endl;
-        cout << "Colonne = " << colonne << endl;*/
+void Connect4::addToken (int column) {
+/*        std::cout << "Coordonnees : ";
+       	 std::cout << "Ligne = " << LIGNES - jetonsParColonnes[colonne] << std::endl;
+        std::cout << "Colonne = " << colonne << std::endl;*/
     addToken (ROWS - tokensInColumns[column] - 1, column, currentPlayer);
  }
 
@@ -72,7 +71,7 @@ void Jeu::addToken (int column) {
         v1 : on verifie toutes les cases
     * Goes through the entire grid to find if there's a winning combination of the same four tokens in a row.
     */
-bool Jeu::checkVictory() {
+bool Connect4::checkVictory() {
     for(int i = 0; i < ROWS; i++) {
         for(int j = 0; j < COLUMNS; j++) {
             // Vertical
@@ -100,7 +99,7 @@ bool Jeu::checkVictory() {
 /*
 * From the last played token position, checks if there's a winning combination of the same four tokens in a row.
 */
-bool Jeu::checkVictoryFromPosition(int row, int column) {
+bool Connect4::checkVictoryFromPosition(int row, int column) {
     
     // Vertical
     if((row + 3) < ROWS) {
@@ -175,7 +174,7 @@ bool Jeu::checkVictoryFromPosition(int row, int column) {
     return false;
 }
 
-void Jeu::emptyGrid() {
+void Connect4::emptyGrid() {
         for(int i = 0; i < ROWS; i++) {
             this->tokensInColumns[i] = 0;
             for(int j = 0; j < COLUMNS; j++) {
@@ -184,9 +183,9 @@ void Jeu::emptyGrid() {
         }
 }
 
-void Jeu::printNumberOfTokensInColumn() {
+void Connect4::printNumberOfTokensInColumn() {
     for(int i = 0; i < COLUMNS; i++) {
-        cout << "(" << tokensInColumns[i] << ") ";
+        std::cout << "(" << tokensInColumns[i] << ") ";
     }
-    cout << endl;
+    std::cout << std::endl;
 }

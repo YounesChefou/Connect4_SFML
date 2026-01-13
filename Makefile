@@ -1,16 +1,16 @@
 CC = g++
 CFLAGS = -Wall  #Compiler Flags
 CXXFLAGS = -g #Cpp Flags
-SRCS = pop.cpp Jeu.cpp # Window version of game
-SRCS_TXT = Jeu.cpp main.cpp # Terminal version
+SRCS = Game_SFML.cpp Connect4.cpp # SFML version of game
+SRCS_TXT = Connect4.cpp Game_CLI.cpp # CLI version
 SRC_DIR = src
 BUILD_DIR = build
 LDLIBS = -lsfml-graphics -lsfml-window -lsfml-system
-INCLUDES = -Iinclude/
-OBJS = $(SRCS:%.cpp=$(BUILD_DIR)/%.o) #Substitution : pop.cpp => build/pop.o
+INCL_DIR = include
+OBJS = $(SRCS:%.cpp=$(BUILD_DIR)/%.o) #Substitution : X.cpp => build/X.o
 OBJS_TXT = $(SRCS_TXT:%.cpp=$(BUILD_DIR)/%.o)
 TARGET = connect4
-TXT_TARGET = connect4_text
+TXT_TARGET = connect4_cli
 
 $(TARGET): $(OBJS)
 	$(CC) -o $@ $^ $(LDLIBS)
@@ -19,10 +19,7 @@ $(TXT_TARGET) : $(OBJS_TXT)
 	$(CC) -o $@ $^
 
 $(BUILD_DIR)/%.o : $(SRC_DIR)/%.cpp
-	$(CC) $(CFLAGS) $(CXXFLAGS) $(LDLIBS) -Iinclude -c $^ -o $@
+	$(CC) $(CFLAGS) $(CXXFLAGS) $(LDLIBS) -I$(INCL_DIR) -c $^ -o $@
 
 clean:
-	rm $(TARGET) build/*.o
-
-clean_txt:
-	rm $(TXT_TARGET) build/*.o
+	rm $(TARGET) $(TXT_TARGET) $(BUILD_DIR)/*.o

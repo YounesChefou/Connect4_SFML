@@ -1,11 +1,11 @@
 #include <iostream>
 #include "Constants.hpp"
 
-class Jeu 
+class Connect4 
 {
 	public:
-		Jeu() {emptyGrid();};
-    	void printJeu();
+		Connect4() {emptyGrid();};
+    	void printGame();
 		void addToken (int column);
     	void addToken (int row, int column, int token);
     	bool filledColumn(int column) {return tokensInColumns[column] == ROWS;};
@@ -19,7 +19,7 @@ class Jeu
 
     private:
 	    int grid[ROWS][COLUMNS];
-	    int tokensInColumns[COLUMNS] = {0}; // indique les jetons déjà insérés dans la colonne
+	    int tokensInColumns[COLUMNS] = {0}; // Indicates tokens already in columns
 	    int currentPlayer = PLAYER_1;
 
 };
