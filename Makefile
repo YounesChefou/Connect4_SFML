@@ -1,7 +1,7 @@
 CC = g++
 CFLAGS = -Wall  #Compiler Flags
 CXXFLAGS = -g #Cpp Flags
-SRCS = Game_SFML.cpp Connect4.cpp # SFML version of game
+SRCS = Game_SFML.cpp Connect4.cpp Connect4_SFML.cpp # SFML version of game
 SRCS_TXT = Connect4.cpp Game_CLI.cpp # CLI version
 SRC_DIR = src
 BUILD_DIR = build
