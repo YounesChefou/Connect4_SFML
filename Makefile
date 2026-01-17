@@ -14,11 +14,13 @@ TXT_TARGET = connect4_cli
 
 $(TARGET): $(OBJS)
 	$(CC) -o $@ $^ $(LDLIBS)
-   
+
 $(TXT_TARGET) : $(OBJS_TXT)
 	$(CC) -o $@ $^
 
 $(BUILD_DIR)/%.o : $(SRC_DIR)/%.cpp
+# Creating the folder BUILD_DIR if it does not exist
+	@if [ ! -d "$(BUILD_DIR)" ]; then mkdir $(BUILD_DIR); fi
 	$(CC) $(CFLAGS) $(CXXFLAGS) $(LDLIBS) -I$(INCL_DIR) -c $^ -o $@
 
 clean:

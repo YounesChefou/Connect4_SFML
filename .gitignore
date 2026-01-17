@@ -1,0 +1,3 @@
+*.o
+Interfaces_Cpp.txt
+CMakebuild/*

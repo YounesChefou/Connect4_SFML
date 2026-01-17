@@ -23,8 +23,8 @@ int main()
 
     // Add Tokens in columns
 
-    // Cursor speed
-    float cursor1Speed = 0;
+    // // Cursor speed
+    // float cursor1Speed = 0;
 
     sf::Clock clock;
 

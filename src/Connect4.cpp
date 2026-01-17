@@ -22,6 +22,18 @@ void Connect4::printGame() {
     }
 
 /*
+* Adds token to the current game's grid, only takes column as a parameter.
+* @param column, the number of the selected column in the grid, is between 0 and (COLUMNS - 1)
+*/
+void Connect4::addToken (int column) {
+/*        std::cout << "Coordonnees : ";
+       	 std::cout << "Ligne = " << LIGNES - jetonsParColonnes[colonne] << std::endl;
+        std::cout << "Colonne = " << colonne << std::endl;*/
+    addToken (ROWS - tokensInColumns[column] - 1, column, currentPlayer);
+ }
+
+
+/*
 * Adds token to the current game's grid.
 * @param row, the number of the row the token will be on after being added, is between 0 and (ROWS - 1)
 * @param column, the number of the selected column in the grid, is between 0 and (COLUMNS - 1)
@@ -33,18 +45,10 @@ void Connect4::addToken (int row, int column, int token) {
             this->tokensInColumns[column] += 1;
         }
         else {
-            std::cout << " Column is  " << std::endl;
+            std::cout << " Column is filled." << std::endl;
         }
             
     }
-
-
-void Connect4::addToken (int column) {
-/*        std::cout << "Coordonnees : ";
-       	 std::cout << "Ligne = " << LIGNES - jetonsParColonnes[colonne] << std::endl;
-        std::cout << "Colonne = " << colonne << std::endl;*/
-    addToken (ROWS - tokensInColumns[column] - 1, column, currentPlayer);
- }
 
      // Conditions de victoire
     /*
