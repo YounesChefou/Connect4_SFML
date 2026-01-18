@@ -8,3 +8,4 @@ project(connect4) # Put C,C++ or anything in place of XX
 
 
 add_subdirectory(src)
+add_subdirectory(test)

@@ -88,11 +88,11 @@ bool Connect4::checkVictory() {
             }
 
             // Diagonal
-            if ((i+3) < ROWS && (j+3) < COLUMNS && abs(grid[i][j] + grid[i+1][j+1] + grid[i+2][j+2] + grid[i+3][i+3]) == 4) {
+            if ((i+3) < ROWS && (j+3) < COLUMNS && abs(grid[i][j] + grid[i+1][j+1] + grid[i+2][j+2] + grid[i+3][j+3]) == 4) {
                 return true;
             }
 
-            if ((i+3) > ROWS && (j-3) >= 0 && abs(grid[i][j] + grid[i+1][j-1] + grid[i+2][j-2] + grid[i+3][i-3]) == 4) {
+            if ((i-3) >= 0 && (j+3) < COLUMNS && abs(grid[i][j] + grid[i-1][j+1] + grid[i-2][j+2] + grid[i-3][j+3]) == 4) {
                 return true;
             }
         }
@@ -178,13 +178,16 @@ bool Connect4::checkVictoryFromPosition(int row, int column) {
     return false;
 }
 
+/*
+* Sets every element of grid to 0.
+*/
 void Connect4::emptyGrid() {
+    for(int j = 0; j < COLUMNS; j++) {
+        this->tokensInColumns[j] = 0;
         for(int i = 0; i < ROWS; i++) {
-            this->tokensInColumns[i] = 0;
-            for(int j = 0; j < COLUMNS; j++) {
                 this->grid[i][j] = 0;
-            }
         }
+    }
 }
 
 void Connect4::printNumberOfTokensInColumn() {
