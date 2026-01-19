@@ -101,15 +101,39 @@ bool Connect4::checkVictory() {
 }
 
 /*
-* From the last played token position, checks if there's a winning combination of the same four tokens in a row.
+* From a given position, checks if there's a winning combination of the same four tokens in a column.
+* @param row, the number of the row the token will be on after being added, is between 0 and (ROWS - 1)
+* @param column, the number of the selected column in the grid, is between 0 and (COLUMNS - 1)
+* @return True if the position given is part of a winning combination.
 */
 bool Connect4::checkVictoryFromPosition(int row, int column) {
-    
-    // Vertical
+    return checkVictoryFromPositionVertical(row, column) ||
+    checkVictoryFromPositionHorizontal(row, column) ||
+    checkVictoryFromPositionDiagonalTopToBottom(row, column) ||
+    checkVictoryFromPositionDiagonalBottomToTop(row, column);
+}
+
+/*
+* From a given position, checks if there's a winning combination of the same four tokens in a column.
+* @param row, the number of the row the token will be on after being added, is between 0 and (ROWS - 1)
+* @param column, the number of the selected column in the grid, is between 0 and (COLUMNS - 1)
+* @return True if the position given is part of a winning combination.
+*/
+bool Connect4::checkVictoryFromPositionVertical(int row, int column) {
     if((row + 3) < ROWS) {
         return abs(grid[row][column] + grid[row+1][column] + grid[row+2][column] + grid[row+3][column]) == 4;
     }   
 
+    return false;
+}
+
+/*
+* From a given position, checks if there's a winning combination of the same four tokens in a row.
+* @param row, the number of the row the token will be on after being added, is between 0 and (ROWS - 1)
+* @param column, the number of the selected column in the grid, is between 0 and (COLUMNS - 1)
+* @return True if the position given is part of a winning row.
+*/
+bool Connect4::checkVictoryFromPositionHorizontal(int row, int column) {
     // Horizontal
     if((column - 3) >= 0 && abs(grid[row][column - 3] + grid[row][column - 2] + grid[row][column - 1] + grid[row][column]) == 4) {
         return true;
@@ -127,49 +151,75 @@ bool Connect4::checkVictoryFromPosition(int row, int column) {
         return true;
     }
 
-    // Diagonal
+    return false;
+}
+    
+/*
+* From a given position, checks if there's a winning combination of the same four tokens in a diagonal, top to bottom.
+* @param row, the number of the row the token will be on after being added, is between 0 and (ROWS - 1)
+* @param column, the number of the selected column in the grid, is between 0 and (COLUMNS - 1)
+* @return True if the position given is part of a winning diagonal.
+*/
+bool Connect4::checkVictoryFromPositionDiagonalTopToBottom(int row, int column) {
 
-    // From top to bottom diagonal
-    if((row - 3) >= 0 && (column - 3) >= 0 
-    && abs(grid[row - 3][column - 3] + grid[row - 2][column - 2] + grid[row - 1][column - 1] + grid[row][column]) == 4) {
+    // Token at the top of the diagonal
+    if((row + 3) < ROWS && (column + 3) < COLUMNS
+    && abs(grid[row][column] + grid[row + 1][column + 1] + grid[row + 2][column + 2] + grid[row + 3][column + 3]) == 4) {
         return true;
     }
 
+    // Token in 2nd position
+    if((row - 1) >= 0 && (column - 1) >= 0 
+    && (row + 2) < ROWS && (column + 2) < COLUMNS 
+    && abs(grid[row - 1][column - 1] + grid[row][column] + grid[row + 1][column + 1] + grid[row + 2][column + 2]) == 4) {
+        return true;
+    }
+    
+    // Token in 3rd position
     if((row - 2) >= 0 && (column - 2) >= 0 
     && (row + 1) < ROWS && (column + 1) < COLUMNS 
     && abs(grid[row - 2][column - 2] + grid[row - 1][column - 1] + grid[row][column] + grid[row + 1][column + 1]) == 4) {
         return true;
     }
 
-    if((row - 1) >= 0 && (column - 1) >= 0 
-    && (row + 2) < ROWS && (column + 2) < COLUMNS 
-    && abs(grid[row - 1][column - 1] + grid[row][column] + grid[row + 1][column + 1] + grid[row + 2][column + 2]) == 4) {
+    // Token at the bottom of the diagonal
+    if((row - 3) >= 0 && (column - 3) >= 0 
+    && abs(grid[row - 3][column - 3] + grid[row - 2][column - 2] + grid[row - 1][column - 1] + grid[row][column]) == 4) {
         return true;
     }
 
-    if((row + 3) < ROWS && (column + 3) < COLUMNS
-    && abs(grid[row][column] + grid[row + 1][column + 1] + grid[row + 2][column + 2] + grid[row + 3][column + 3]) == 4) {
-        return true;
-    }
+    return false;
+}
 
-    // From bottom to top diagonal
+/*
+* From a given position, checks if there's a winning combination of the same four tokens in a diagonal, bottom to top.
+* @param row, the number of the row the token will be on after being added, is between 0 and (ROWS - 1)
+* @param column, the number of the selected column in the grid, is between 0 and (COLUMNS - 1)
+* @return True if the position given is part of a winning diagonal.
+*/
+bool Connect4::checkVictoryFromPositionDiagonalBottomToTop(int row, int column) {    
+
+    // Token at the bottom of the diagonal
     if((row + 3) < ROWS && (column - 3) >= 0 
     && abs(grid[row + 3][column - 3] + grid[row + 2][column - 2] + grid[row + 1][column - 1] + grid[row][column]) == 4) {
         return true;
     }
 
+    // Token in 2nd position
     if((row - 1) >= 0 && (column - 2) >= 0 
     && (row + 2) < ROWS && (column + 1) < COLUMNS 
     && abs(grid[row + 2][column - 2] + grid[row + 1][column - 1] + grid[row][column] + grid[row - 1][column + 1]) == 4) {
         return true;
     }
 
+    // Token in 3rd position
     if((row - 2) >= 0 && (column - 1) >= 0 
     && (row + 1) < ROWS && (column + 2) < COLUMNS 
     && abs(grid[row + 1][column - 1] + grid[row][column] + grid[row - 1][column + 1] + grid[row - 2][column + 2]) == 4) {
         return true;
     }
 
+    // Token at the top of the diagonal
     if((row - 3) >= 0 && (column + 3) < COLUMNS
     && abs(grid[row][column] + grid[row - 1][column + 1] + grid[row - 2][column + 2] + grid[row - 3][column + 3]) == 4) {
         return true;
@@ -190,6 +240,9 @@ void Connect4::emptyGrid() {
     }
 }
 
+/*
+* Prints each element in array tokensInColumns.
+*/
 void Connect4::printNumberOfTokensInColumn() {
     for(int i = 0; i < COLUMNS; i++) {
         std::cout << "(" << tokensInColumns[i] << ") ";

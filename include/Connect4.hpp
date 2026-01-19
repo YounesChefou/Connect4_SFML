@@ -12,7 +12,11 @@ class Connect4
 		int getNumberOfTokensInColumn(int column) {return tokensInColumns[column];};
     	bool checkVictory();
     	bool checkVictoryFromPosition(int row, int column);
-    	void emptyGrid();
+		bool checkVictoryFromPositionVertical(int row, int column);
+		bool checkVictoryFromPositionHorizontal(int row, int column);
+		bool checkVictoryFromPositionDiagonalTopToBottom(int row, int column);
+		bool checkVictoryFromPositionDiagonalBottomToTop(int row, int column);
+		void emptyGrid();
     	int getCurrentPlayer() {return currentPlayer;}
     	void changeCurrentPlayer() {currentPlayer *= -1;};
     	void printNumberOfTokensInColumn();
