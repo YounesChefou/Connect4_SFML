@@ -20,10 +20,14 @@ class Connect4_SFML
 {
     public:
         Connect4_SFML();
-        void addTokenToColumn(sf::RenderWindow* window);
+
+        // TODO : add window as class parameter 
+        bool addTokenToColumn(sf::RenderWindow* window);
         void drawGridOnWindow(sf::RenderWindow* window);
         void drawCursorOnWindow(sf::RenderWindow* window);
         void drawTokensOnGrid(sf::RenderWindow* window);
+        void drawInfoOnScreen(sf::RenderWindow* window);
+
         void moveCursorToNextColumn(bool right);
         bool checkVictory() {return game.checkVictory();};
         bool checkVictoryFromPosition(int row, int column) {return game.checkVictoryFromPosition(row, column);};
@@ -33,7 +37,7 @@ class Connect4_SFML
         void setGameState(GameState newState) {state = newState;};
         void clearGrid();
     private:
-        GameState state; 
+        GameState state;
         Connect4 game;
         sf::RectangleShape columnShapes[COLUMNS];
         Selection playerSelection;

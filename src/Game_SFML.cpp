@@ -21,11 +21,6 @@ int main()
     Connect4_SFML videoGame;
     videoGame.clearGrid();
 
-    // Add Tokens in columns
-
-    // // Cursor speed
-    // float cursor1Speed = 0;
-
     sf::Clock clock;
 
     // Track if the game is running or not
@@ -46,6 +41,10 @@ int main()
     textRect.top + textRect.height / 2.0f);
     victoryText.setPosition(WIDTH / 2.0f, HEIGHT / 2.0f);
     //victoryText.setPosition(0, 0);
+
+    
+    bool okDisplay = false;
+
     while(window.isOpen())
     {
         /*
@@ -117,6 +116,9 @@ int main()
                     window.close();
 
                 case sf::Event::KeyPressed:
+                    //Player has moved, clean up info
+                    okDisplay = false;
+
                     // Commands
                     if(event.key.code == sf::Keyboard::Key::Left) {
                         videoGame.moveCursorToNextColumn(false);
@@ -127,22 +129,29 @@ int main()
                     else if(event.key.code == sf::Keyboard::Return) {
 
                         if(videoGame.getGameState() == GameState::RUNNING) {
-                            videoGame.addTokenToColumn(&window);
+                            
+                            if(videoGame.addTokenToColumn(&window)) { // Checks if the player's input is correct
 
-                            if(videoGame.checkVictory()) {
-                                if(videoGame.getCurrentPlayer() == PLAYER_1) {
-                                    victoryText.setString("PLAYER 1 WON !\nPress Enter to restart the game.");
-                                }
-                                else {
-                                    victoryText.setString("PLAYER 2 WON !\nPress Enter to restart the game.");
-                                }
+                                if(videoGame.checkVictory()) { 
+                                    if(videoGame.getCurrentPlayer() == PLAYER_1) {
+                                        victoryText.setString("PLAYER 1 WON !\nPress Enter to restart the game.");
+                                    }
+                                    else {
+                                        victoryText.setString("PLAYER 2 WON !\nPress Enter to restart the game.");
+                                    }
 
-                                videoGame.setGameState(GameState::VICTORY);
+                                    videoGame.setGameState(GameState::VICTORY);
+                                }
+                                else { // If no winning combination yet, continue game and change current player 
+                                    videoGame.changeCurrentPlayer();
+                                }
                             }
-                            else {
-                                // Change current player
-                                videoGame.changeCurrentPlayer();
+                            else { 
+                                // Display message indicating that the input was wrong (Column is filled already)
+                                okDisplay = true;
                             }
+
+                            
                         }
                         else if(videoGame.getGameState() == GameState::VICTORY) {
                             videoGame.clearGrid();
@@ -201,6 +210,9 @@ int main()
 
                 // Draw tokens
                 videoGame.drawTokensOnGrid(&window);
+
+                // // Draw info
+                if(okDisplay) videoGame.drawInfoOnScreen(&window);
                 break;
 
             case GameState::VICTORY:

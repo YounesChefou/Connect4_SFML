@@ -23,22 +23,21 @@ Connect4_SFML::Connect4_SFML() {
     sf::Vector2f firstColumnPosition = columnShapes[0].getPosition();
     playerSelection.cursor.setPosition(firstColumnPosition.x, firstColumnPosition.y + BOARD_HEIGHT + 10.f); // Set position under first column
     playerSelection.columnSelected = 0; // Select first column
+
 }
 
-void Connect4_SFML::addTokenToColumn(sf::RenderWindow* window)
+bool Connect4_SFML::addTokenToColumn(sf::RenderWindow* window)
 {
     int columnNumber = playerSelection.columnSelected;
 
     if(game.filledColumn(columnNumber)){
         // TODO: Add message on window
-        return; // Column already full
+        return false; // Column already full
     }
 
     
     // Adding token in the 2D-array representing the grid
     game.addToken(columnNumber);
-
-    game.printGame();
 
     // Display token in window
     sf::Vector2f columnPosition = columnShapes[columnNumber].getPosition();
@@ -59,6 +58,8 @@ void Connect4_SFML::addTokenToColumn(sf::RenderWindow* window)
     token.setPosition(columnPosition.x, columnPosition.y + BOARD_HEIGHT - BOARD_COLUMN_WIDTH * numberOfTokensInColumn);
 
     displayedTokens.push_back(token);
+
+    return true;
 }
 
 void Connect4_SFML::drawGridOnWindow(sf::RenderWindow* window) {
@@ -92,6 +93,30 @@ void Connect4_SFML::moveCursorToNextColumn(bool right) {
         playerSelection.cursor.move(-(BOARD_COLUMN_WIDTH + BOARD_COLUMN_MARGIN), 0);
         playerSelection.columnSelected -= 1;
     }
+}
+
+void Connect4_SFML::drawInfoOnScreen(sf::RenderWindow* window) {
+    sf::Text infoText;
+
+    // Set up infoText
+    infoText.setString("Column is filled !");
+    infoText.setCharacterSize(35);
+    infoText.setFillColor(sf::Color::White);
+
+    sf::Font myFont;
+    myFont.loadFromFile("assets/UbuntuMono-B.ttf");
+    infoText.setFont(myFont);
+
+    sf::FloatRect textRect = infoText.getLocalBounds();
+
+    // Put text origin at the center of the string
+    infoText.setOrigin(textRect.left + textRect.width / 2.0f,
+    textRect.top + textRect.height / 2.0f);
+
+    // Put text on top right corner of screen
+    infoText.setPosition(WIDTH * 0.85, HEIGHT * 0.05);
+
+    window->draw(infoText);
 }
 
 void Connect4_SFML::clearGrid() {
